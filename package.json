@@ -1,0 +1,31 @@
+{
+  "name": "js-matrix-sort",
+  "version": "0.0.1",
+  "description": "Sort a n-dimensional matrix with js",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franrevoredo/js-matrix-sort.git"
+  },
+  "keywords": [
+    "javascript",
+    "js",
+    "matrix",
+    "sort",
+    "typescript"
+  ],
+  "author": "Francisco Revoredo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/franrevoredo/js-matrix-sort/issues"
+  },
+  "homepage": "https://github.com/franrevoredo/js-matrix-sort#readme",
+  "dependencies": {
+    "@types/jquery": "^3.2.12",
+    "jquery": "^3.2.1",
+    "systemjs": "^0.20.18"
+  }
+}
