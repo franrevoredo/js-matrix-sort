@@ -7,6 +7,8 @@ let matrix:Array<Array<number>> = [];
 let matrix_rnd:Array<Array<number>> = [];
 let x = 1;
 
+let step:number = 5000;
+
 let tries:number = 0;
 
 let zero_pos:Array<number> = [];
@@ -62,16 +64,17 @@ $('#calculate').on('click', function () {
 
 $('#nextmove').on('click', function () {
     $('#nextmove').prop('disabled', true);
-    $('#tablecontainer_random').hide(200,function() {
+    //$('#tablecontainer_random').hide(200,function() {
 
-        while(tries < 5000) {
+        while(tries < step || arraysEqual(matrix, matrix_rnd)) {
             playPuzzle()
         }
 
         insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
         console.log(tries)
-        $('#tablecontainer_random').show(200);
+        //$('#tablecontainer_random').show(200);
         $('#nextmove').prop('disabled', false);
+        //step = step + 5000;
     });
 
 

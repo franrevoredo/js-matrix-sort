@@ -6181,6 +6181,7 @@ var sq_matrix_max = n * n;
 var matrix = [];
 var matrix_rnd = [];
 var x = 1;
+var step = 5000;
 var tries = 0;
 var zero_pos = [];
 var next_move = [];
@@ -6212,16 +6213,14 @@ $('#calculate').on('click', function () {
 });
 $('#nextmove').on('click', function () {
     $('#nextmove').prop('disabled', true);
-    $('#tablecontainer_random').hide(200, function () {
-        while (tries < 5000) {
-            playPuzzle();
-        }
-        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
-        console.log(tries);
-        $('#tablecontainer_random').show(200);
-        $('#nextmove').prop('disabled', false);
-    });
+    while (tries < step || arraysEqual(matrix, matrix_rnd)) {
+        playPuzzle();
+    }
+    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+    console.log(tries);
+    $('#nextmove').prop('disabled', false);
 });
+;
 function playPuzzle() {
     if (!next_move) {
         next_move = getRandomPlay();
