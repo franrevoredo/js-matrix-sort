@@ -6175,20 +6175,20 @@
     }
     return jQuery;
 });
-var n = 3;
-var m = n;
-var sq_matrix_max = n * n;
-var matrix = [];
-var matrix_rnd = [];
-var x = 1;
-var step = 5000;
-var tries = 0;
-var zero_pos = [];
-var next_move = [];
-for (var i = 0; i < n; i++) {
+let n = 3;
+let m = n;
+let sq_matrix_max = n * n;
+let matrix = [];
+let matrix_rnd = [];
+let x = 1;
+let step = 5000;
+let tries = 0;
+let zero_pos = [];
+let next_move = [];
+for (let i = 0; i < n; i++) {
     if (!matrix[i])
         matrix[i] = [];
-    for (var j = 0; j < m; j++) {
+    for (let j = 0; j < m; j++) {
         if (i === (n - 1) && j === (m - 1)) {
             matrix[i][j] = 0;
         }
@@ -6200,77 +6200,93 @@ for (var i = 0; i < n; i++) {
 }
 insertHTML("tablecontainer", createTable(matrix, "La Matriz Original"));
 $('#random').on('click', function () {
-    var rand = generateRandomArray(sq_matrix_max);
+    let rand = generateRandomArray(sq_matrix_max);
     matrix_rnd = fillMatrix(n, rand);
     insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
     $('#calculate').show(200);
+    goToBottom();
 });
 $('#calculate').on('click', function () {
     zero_pos = findZero(n, matrix_rnd);
     insertHTML("zero_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
     $('#zero_result').show(200);
     $('#nextmove').show(200);
+    getPositionMatrix();
+    goToBottom();
 });
 $('#nextmove').on('click', function () {
-    $('#nextmove').prop('disabled', true);
-    while (tries < step || arraysEqual(matrix, matrix_rnd)) {
-        playPuzzle();
-    }
+    let nxtmv_button = $('#nextmove');
+    nxtmv_button.prop('disabled', true);
+    playPuzzle();
     insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
-    console.log(tries);
-    $('#nextmove').prop('disabled', false);
+    nxtmv_button.prop('disabled', false);
 });
-;
+function loaderShow() {
+    $('.loader').show();
+}
+function loaderHide() {
+    $('.loader').hide();
+}
+function goToBottom() {
+    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+}
 function playPuzzle() {
     if (!next_move) {
         next_move = getRandomPlay();
+        console.log("Next Move: " + next_move[0] + "," + next_move[1]);
     }
     if (isPossible(next_move, zero_pos)) {
         matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
         tries++;
         console.log(tries);
+        next_move = null;
     }
     else {
         next_move = null;
     }
 }
 function makeThePlay(initial_pos, final_pos, matrix) {
-    var initial_val = matrix[initial_pos[0]][initial_pos[1]];
-    var final_val = matrix[final_pos[0]][final_pos[1]];
+    let initial_val = matrix[initial_pos[0]][initial_pos[1]];
+    let final_val = matrix[final_pos[0]][final_pos[1]];
     matrix[initial_pos[0]][initial_pos[1]] = final_val;
     matrix[final_pos[0]][final_pos[1]] = initial_val;
+    console.log("ZERO: " + zero_pos[0] + "," + zero_pos[1]);
     zero_pos = final_pos;
+    console.log("FINAL: " + final_pos[0] + "," + final_pos[1]);
     return matrix;
 }
-function isPossible(move, point) {
-    var move_sum = move[0] + move[1];
-    var point_sum = point[0] + point[1];
+function isPossible(move, base_point) {
+    let move_sum = move[0] + move[1];
+    let point_sum = base_point[0] + base_point[1];
     if (getDistance(move_sum, point_sum) === 1) {
-        return true;
+        if (isCongruentColumnOrRow(move, base_point)) {
+            return true;
+        }
     }
-    else {
-        return false;
-    }
+    return false;
+}
+function isCongruentColumnOrRow(move, base_point) {
+    return (move[0] === base_point[0] || move[1] === base_point[1]);
 }
 function getRandomPlay() {
-    var randomPlay = [];
-    randomPlay[0] = getRandom(n - 1);
-    randomPlay[1] = getRandom(n - 1);
+    let randomPlay = [];
+    randomPlay[0] = getRandom(n);
+    randomPlay[1] = getRandom(n);
     return randomPlay;
 }
 function possibleMoves(zero, aux_matrix) {
-    var pos_sum = zero[0] + zero[1];
-    var positionMatrix = getPositionMatrix();
+    let pos_sum = zero[0] + zero[1];
+    let positionMatrix = getPositionMatrix();
 }
 function getPositionMatrix() {
-    var pos_matrix = [];
-    for (var i = 0; i < n; i++) {
+    let pos_matrix = [];
+    for (let i = 0; i < n; i++) {
         pos_matrix[i] = new Array(n);
     }
-    var x = 0;
-    for (var i = 0; i < n; i++) {
-        for (var j = 0; j < m; j++) {
-            matrix_rnd[i][j] = pos_matrix[i][j] = i + j;
+    let x = 0;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
+            pos_matrix[i][j] = i + j;
             x++;
         }
     }
@@ -6278,12 +6294,12 @@ function getPositionMatrix() {
     return pos_matrix;
 }
 function fillMatrix(order, data_vector) {
-    var x = 0;
-    var matrix = [];
-    for (var i = 0; i < order; i++) {
+    let x = 0;
+    let matrix = [];
+    for (let i = 0; i < order; i++) {
         if (!matrix[i])
             matrix[i] = [];
-        for (var j = 0; j < order; j++) {
+        for (let j = 0; j < order; j++) {
             matrix[i][j] = data_vector[x];
             x++;
         }
@@ -6291,11 +6307,11 @@ function fillMatrix(order, data_vector) {
     return matrix;
 }
 function findZero(order, matrix) {
-    var result = [];
-    for (var i = 0; i < order; i++) {
+    let result = [];
+    for (let i = 0; i < order; i++) {
         if (!matrix[i])
             matrix[i] = [];
-        for (var j = 0; j < order; j++) {
+        for (let j = 0; j < order; j++) {
             if (matrix[i][j] === 0) {
                 result[0] = i;
                 result[1] = j;
@@ -6305,10 +6321,10 @@ function findZero(order, matrix) {
     }
 }
 function generateRandomArray(rand_dim) {
-    var rand = [];
-    var aux_rand;
+    let rand = [];
+    let aux_rand;
     x = 0;
-    for (var i = 0; i < rand_dim; i++) {
+    for (let i = 0; i < rand_dim; i++) {
         aux_rand = getRandom(rand_dim);
         if (rand.indexOf(aux_rand) == -1) {
             rand[i] = aux_rand;
@@ -6323,13 +6339,13 @@ function getRandom(max) {
     return Math.floor((Math.random() * max));
 }
 function createTable(data, title) {
-    var html = '';
+    let html = '';
     html += '<h2>' + title + '</h2><table class="table matrix">';
-    for (var row in data) {
-        var rowData = data[row];
+    for (let row in data) {
+        let rowData = data[row];
         html += '<tr>';
-        for (var col in rowData) {
-            var colData = rowData[col];
+        for (let col in rowData) {
+            let colData = rowData[col];
             html += '<td>';
             html += colData;
             html += '</td>';
@@ -6340,7 +6356,7 @@ function createTable(data, title) {
     return html;
 }
 function insertHTML(id, html) {
-    var element = document.getElementById(id);
+    let element = document.getElementById(id);
     if (element) {
         element.innerHTML = html;
     }
@@ -6351,7 +6367,7 @@ function getDistance(x, y) {
 function arraysEqual(arr1, arr2) {
     if (arr1.length !== arr2.length)
         return false;
-    for (var i = arr1.length; i--;) {
+    for (let i = arr1.length; i--;) {
         if (arr1[i] !== arr2[i])
             return false;
     }

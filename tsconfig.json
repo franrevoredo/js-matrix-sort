@@ -4,7 +4,7 @@
     "outFile": "./built/main.js",
     "removeComments": true,
     "allowJs": true,
-    "target": "es5",
+    "target": "es2015",
     "sourceMap": true,
     "noImplicitAny": true
   },
