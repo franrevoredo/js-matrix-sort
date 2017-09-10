@@ -25,7 +25,6 @@
   "homepage": "https://github.com/franrevoredo/js-matrix-sort#readme",
   "dependencies": {
     "@types/jquery": "^3.2.12",
-    "jquery": "^3.2.1",
-    "systemjs": "^0.20.18"
+    "jquery": "^3.2.1"
   }
 }

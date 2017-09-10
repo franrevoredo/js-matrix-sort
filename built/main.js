@@ -1,132 +1,3 @@
-var n = 3;
-var m = n;
-var sq_matrix_max = n * n;
-var matrix = [];
-var matrix_rnd = [];
-var max = n * m;
-var x = 1;
-var zero_pos = [];
-var next_move = [];
-for (var i = 0; i < n; i++) {
-    if (!matrix[i])
-        matrix[i] = [];
-    for (var j = 0; j < m; j++) {
-        if (i === (n - 1) && j === (m - 1)) {
-            matrix[i][j] = 0;
-        }
-        else {
-            matrix[i][j] = x;
-        }
-        x++;
-    }
-}
-insertHTML("tablecontainer", createTable(matrix, "La Matriz Original"));
-$('#random').on('click', function () {
-    var rand = generateRandomArray(sq_matrix_max);
-    matrix_rnd = fillMatrix(n, rand);
-    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
-    $('#calculate').show(200);
-});
-$('#calculate').on('click', function () {
-    zero_pos = findZero(n, matrix_rnd);
-    insertHTML("zero_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
-    $('#zero_result').show(200);
-    $('#nextmove').show(200);
-});
-$('#nextmove').on('click', function () {
-    possibleMoves(zero_pos, matrix_rnd);
-    insertHTML("nextmove_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
-    $('#nextmove_result').show(200);
-});
-function possibleMoves(zero, aux_matrix) {
-    var pos_sum = zero[0] + zero[1];
-    var positionMatrix = getPositionMatrix();
-}
-function getPositionMatrix() {
-    var pos_matrix = [];
-    for (i = 0; i < n; i++) {
-        pos_matrix[i] = new Array(n);
-    }
-    var x = 0;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            matrix_rnd[i][j] = pos_matrix[i][j] = i + j;
-            x++;
-        }
-    }
-    console.table(pos_matrix);
-}
-function fillMatrix(order, data_vector) {
-    var x = 0;
-    var matrix = [];
-    for (i = 0; i < order; i++) {
-        if (!matrix[i])
-            matrix[i] = [];
-        for (j = 0; j < order; j++) {
-            matrix[i][j] = data_vector[x];
-            x++;
-        }
-    }
-    return matrix;
-}
-function findZero(order, matrix) {
-    var result = [];
-    for (i = 0; i < order; i++) {
-        if (!matrix[i])
-            matrix[i] = [];
-        for (j = 0; j < order; j++) {
-            if (matrix[i][j] === 0) {
-                result[0] = i;
-                result[1] = j;
-                return result;
-            }
-        }
-    }
-}
-function generateRandomArray(rand_dim) {
-    var rand = [];
-    var aux_rand;
-    x = 0;
-    for (i = 0; i < rand_dim; i++) {
-        aux_rand = getRandom(rand_dim);
-        if (rand.indexOf(aux_rand) == -1) {
-            rand[i] = aux_rand;
-        }
-        else {
-            i--;
-        }
-    }
-    return rand;
-}
-function getRandom(max) {
-    return Math.floor((Math.random() * max));
-}
-function createTable(data, title) {
-    var html = '';
-    html += '<h2>' + title + '</h2><table class="table matrix">';
-    for (var row in data) {
-        var rowData = data[row];
-        html += '<tr>';
-        for (var col in rowData) {
-            var colData = rowData[col];
-            html += '<td>';
-            html += colData;
-            html += '</td>';
-        }
-        html += '</tr>';
-    }
-    html += '</table>';
-    return html;
-}
-function insertHTML(id, html) {
-    var element = document.getElementById(id);
-    if (element) {
-        element.innerHTML = html;
-    }
-}
-function getDistance(x, y) {
-    return Math.abs(x - y);
-}
 (function (global, factory) {
     "use strict";
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6304,4 +6175,187 @@ function getDistance(x, y) {
     }
     return jQuery;
 });
+var n = 3;
+var m = n;
+var sq_matrix_max = n * n;
+var matrix = [];
+var matrix_rnd = [];
+var x = 1;
+var tries = 0;
+var zero_pos = [];
+var next_move = [];
+for (var i = 0; i < n; i++) {
+    if (!matrix[i])
+        matrix[i] = [];
+    for (var j = 0; j < m; j++) {
+        if (i === (n - 1) && j === (m - 1)) {
+            matrix[i][j] = 0;
+        }
+        else {
+            matrix[i][j] = x;
+        }
+        x++;
+    }
+}
+insertHTML("tablecontainer", createTable(matrix, "La Matriz Original"));
+$('#random').on('click', function () {
+    var rand = generateRandomArray(sq_matrix_max);
+    matrix_rnd = fillMatrix(n, rand);
+    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
+    $('#calculate').show(200);
+});
+$('#calculate').on('click', function () {
+    zero_pos = findZero(n, matrix_rnd);
+    insertHTML("zero_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
+    $('#zero_result').show(200);
+    $('#nextmove').show(200);
+});
+$('#nextmove').on('click', function () {
+    $('#nextmove').prop('disabled', true);
+    $('#tablecontainer_random').hide(200, function () {
+        while (tries < 5000) {
+            playPuzzle();
+        }
+        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+        console.log(tries);
+        $('#tablecontainer_random').show(200);
+        $('#nextmove').prop('disabled', false);
+    });
+});
+function playPuzzle() {
+    if (!next_move) {
+        next_move = getRandomPlay();
+    }
+    if (isPossible(next_move, zero_pos)) {
+        matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
+        tries++;
+        console.log(tries);
+    }
+    else {
+        next_move = null;
+    }
+}
+function makeThePlay(initial_pos, final_pos, matrix) {
+    var initial_val = matrix[initial_pos[0]][initial_pos[1]];
+    var final_val = matrix[final_pos[0]][final_pos[1]];
+    matrix[initial_pos[0]][initial_pos[1]] = final_val;
+    matrix[final_pos[0]][final_pos[1]] = initial_val;
+    zero_pos = final_pos;
+    return matrix;
+}
+function isPossible(move, point) {
+    var move_sum = move[0] + move[1];
+    var point_sum = point[0] + point[1];
+    if (getDistance(move_sum, point_sum) === 1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+function getRandomPlay() {
+    var randomPlay = [];
+    randomPlay[0] = getRandom(n - 1);
+    randomPlay[1] = getRandom(n - 1);
+    return randomPlay;
+}
+function possibleMoves(zero, aux_matrix) {
+    var pos_sum = zero[0] + zero[1];
+    var positionMatrix = getPositionMatrix();
+}
+function getPositionMatrix() {
+    var pos_matrix = [];
+    for (var i = 0; i < n; i++) {
+        pos_matrix[i] = new Array(n);
+    }
+    var x = 0;
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < m; j++) {
+            matrix_rnd[i][j] = pos_matrix[i][j] = i + j;
+            x++;
+        }
+    }
+    console.table(pos_matrix);
+    return pos_matrix;
+}
+function fillMatrix(order, data_vector) {
+    var x = 0;
+    var matrix = [];
+    for (var i = 0; i < order; i++) {
+        if (!matrix[i])
+            matrix[i] = [];
+        for (var j = 0; j < order; j++) {
+            matrix[i][j] = data_vector[x];
+            x++;
+        }
+    }
+    return matrix;
+}
+function findZero(order, matrix) {
+    var result = [];
+    for (var i = 0; i < order; i++) {
+        if (!matrix[i])
+            matrix[i] = [];
+        for (var j = 0; j < order; j++) {
+            if (matrix[i][j] === 0) {
+                result[0] = i;
+                result[1] = j;
+                return result;
+            }
+        }
+    }
+}
+function generateRandomArray(rand_dim) {
+    var rand = [];
+    var aux_rand;
+    x = 0;
+    for (var i = 0; i < rand_dim; i++) {
+        aux_rand = getRandom(rand_dim);
+        if (rand.indexOf(aux_rand) == -1) {
+            rand[i] = aux_rand;
+        }
+        else {
+            i--;
+        }
+    }
+    return rand;
+}
+function getRandom(max) {
+    return Math.floor((Math.random() * max));
+}
+function createTable(data, title) {
+    var html = '';
+    html += '<h2>' + title + '</h2><table class="table matrix">';
+    for (var row in data) {
+        var rowData = data[row];
+        html += '<tr>';
+        for (var col in rowData) {
+            var colData = rowData[col];
+            html += '<td>';
+            html += colData;
+            html += '</td>';
+        }
+        html += '</tr>';
+    }
+    html += '</table>';
+    return html;
+}
+function insertHTML(id, html) {
+    var element = document.getElementById(id);
+    if (element) {
+        element.innerHTML = html;
+    }
+}
+function getDistance(x, y) {
+    return Math.abs(x - y);
+}
+function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length)
+        return false;
+    for (var i = arr1.length; i--;) {
+        if (arr1[i] !== arr2[i])
+            return false;
+    }
+    return true;
+}
 //# sourceMappingURL=main.js.map

@@ -1,23 +1,22 @@
 
 
-var n = 3;
-var m = n;
-var sq_matrix_max = n * n;
-var matrix = [];
-var matrix_rnd = [];
+let n:number = 3;
+let m:number = n;
+let sq_matrix_max = n * n;
+let matrix:Array<Array<number>> = [];
+let matrix_rnd:Array<Array<number>> = [];
+let x = 1;
 
-var max = n * m;
+let tries:number = 0;
 
-var x = 1;
+let zero_pos:Array<number> = [];
 
-var zero_pos = [];
+let next_move:Array<number> = [];
 
-var next_move = [];
-
-for (var i = 0; i < n; i++) {
+for (let i = 0; i < n; i++) {
     if (!matrix[i])
         matrix[i] = []
-    for (var j = 0; j < m; j++) {
+    for (let j = 0; j < m; j++) {
         if (i === (n - 1) && j === (m - 1)) {
             matrix[i][j] = 0;
         } else {
@@ -36,7 +35,7 @@ insertHTML("tablecontainer", createTable(matrix, "La Matriz Original"));
 $('#random').on('click', function () {
     //Generar vector de numeros aleatorios
 
-    var rand = generateRandomArray(sq_matrix_max);
+    let rand = generateRandomArray(sq_matrix_max);
 
     //Generar la tabla aleatoria
 
@@ -62,50 +61,112 @@ $('#calculate').on('click', function () {
 
 
 $('#nextmove').on('click', function () {
-    //next_move = findZero(n, matrix_rnd);
+    $('#nextmove').prop('disabled', true);
+    $('#tablecontainer_random').hide(200,function() {
 
-    possibleMoves(zero_pos, matrix_rnd)
-    insertHTML("nextmove_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
+        while(tries < 5000) {
+            playPuzzle()
+        }
 
-    $('#nextmove_result').show(200);
+        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+        console.log(tries)
+        $('#tablecontainer_random').show(200);
+        $('#nextmove').prop('disabled', false);
+    });
+
+
+    //insertHTML("nextmove_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
+
+    //$('#nextmove_result').show(200);
+
+
+
 });
 
 
+
+
+
+function playPuzzle() {
+        if (!next_move) {
+            next_move = getRandomPlay();
+        }
+
+        if (isPossible(next_move, zero_pos)) {
+            matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
+            tries++;
+            console.log(tries);
+            //insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
+
+        } else {
+
+            next_move = null;
+        }
+}
+
+function makeThePlay(initial_pos:Array, final_pos:Array, matrix:Array) {
+    let initial_val = matrix[initial_pos[0]][initial_pos[1]];
+    let final_val = matrix[final_pos[0]][final_pos[1]];
+
+    matrix[initial_pos[0]][initial_pos[1]] = final_val;
+    matrix[final_pos[0]][final_pos[1]] = initial_val;
+
+    zero_pos = final_pos;
+    return matrix;
+}
+
+function isPossible(move:Array, point:Array) {
+    let move_sum = move[0] + move[1];
+    let point_sum = point[0] + point [1];
+    if(getDistance(move_sum, point_sum) === 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function getRandomPlay() {
+    let randomPlay:Array = [];
+    randomPlay[0] = getRandom(n-1);
+    randomPlay[1] = getRandom(n-1);
+    return randomPlay;
+}
+
 //Calcular los movimientos válidos desde la posicion indicada en la matriz
 function possibleMoves(zero, aux_matrix) {
-    var pos_sum = zero[0] + zero[1];
-    var positionMatrix = getPositionMatrix();
+    let pos_sum = zero[0] + zero[1];
+    let positionMatrix = getPositionMatrix();
 }
 
 //Calcular el array de posiciones para la matriz, es decir
 //un arreglo en que cada posicion
 function getPositionMatrix() {
 
-    var pos_matrix = [];
-    for(i = 0; i < n; i++) { //incializar la matriz auxiliar de posicion con ceros
+    let pos_matrix = [];
+    for(let i = 0; i < n; i++) { //incializar la matriz auxiliar de posicion con ceros
         pos_matrix[i] = new Array(n);
     }
 
-    var x = 0;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
+    let x = 0;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
             matrix_rnd[i][j] = pos_matrix[i][j] = i + j;
             x++;
         }
     }
-
     console.table(pos_matrix);
+    return pos_matrix;
 }
 
 function fillMatrix(order, data_vector) {
-    var x = 0;
+    let x = 0;
 
-    var matrix = [];
+    let matrix = [];
 
-    for (i = 0; i < order; i++) {
+    for (let i = 0; i < order; i++) {
         if (!matrix[i])
             matrix[i] = []
-        for (j = 0; j < order; j++) {
+        for (let j = 0; j < order; j++) {
             matrix[i][j] = data_vector[x];
             x++;
         }
@@ -115,12 +176,12 @@ function fillMatrix(order, data_vector) {
 
 function findZero(order, matrix) {
 
-    var result = [];
+    let result = [];
 
-    for (i = 0; i < order; i++) {
+    for (let i = 0; i < order; i++) {
         if (!matrix[i])
             matrix[i] = []
-        for (j = 0; j < order; j++) {
+        for (let j = 0; j < order; j++) {
             if (matrix[i][j] === 0) {
                 result[0] = i;
                 result[1] = j;
@@ -132,13 +193,13 @@ function findZero(order, matrix) {
 
 function generateRandomArray(rand_dim) {
 
-    var rand = []
+    let rand = []
 
-    var aux_rand;
+    let aux_rand;
 
     x = 0;
 
-    for (i = 0; i < rand_dim; i++) {
+    for (let i = 0; i < rand_dim; i++) {
         //console.log(x++);
         aux_rand = getRandom(rand_dim);
         if (rand.indexOf(aux_rand) == -1) {
@@ -150,23 +211,23 @@ function generateRandomArray(rand_dim) {
     return rand;
 }
 
-function getRandom(max) {
+function getRandom(max:number) {
     return Math.floor((Math.random() * max));
 }
 
-function createTable(data, title) {
-    var html = '';
+function createTable(data:Array<Array<number>>, title:string) {
+    let html = '';
 
     html += '<h2>' + title + '</h2><table class="table matrix">';
 
 
-    for (var row in data) {
-        var rowData = data[row];
+    for (let row in data) {
+        let rowData:Array<number> = data[row];
 
             html += '<tr>';
 
-        for (var col in rowData) {
-            var colData = rowData[col];
+        for (let col in rowData) {
+            let colData = rowData[col];
 
             html += '<td>';
             html += colData;
@@ -182,7 +243,7 @@ function createTable(data, title) {
 }
 
 function insertHTML(id, html) {
-    var element = document.getElementById(id);
+    let element = document.getElementById(id);
     if (element) {
         element.innerHTML = html;
     }
@@ -190,4 +251,15 @@ function insertHTML(id, html) {
 
 function getDistance(x, y) {
     return Math.abs(x - y);
+}
+
+function arraysEqual(arr1:Array<any>, arr2:Array<any>) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
 }
