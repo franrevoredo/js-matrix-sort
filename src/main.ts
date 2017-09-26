@@ -7,6 +7,8 @@ let matrix:Array<Array<number>> = [];
 let matrix_rnd:Array<Array<number>> = [];
 let x = 1;
 
+var intervalId:number;
+
 let step:number = 5000;
 
 let tries:number = 0;
@@ -14,6 +16,8 @@ let tries:number = 0;
 let zero_pos:Array<number> = [];
 
 let next_move:Array<number> = [];
+
+let previous_move:Array<number> = [];
 
 for (let i = 0; i < n; i++) {
     if (!matrix[i])
@@ -59,6 +63,7 @@ $('#calculate').on('click', function () {
 
     $('#zero_result').show(200);
     $('#nextmove').show(200);
+    $('#stopplay').show(200);
     getPositionMatrix();
     goToBottom();
 });
@@ -67,14 +72,19 @@ $('#calculate').on('click', function () {
 $('#nextmove').on('click', function () {
     let nxtmv_button = $('#nextmove');
     nxtmv_button.prop('disabled', true);
+    intervalId = window.setInterval(function(){
+        playPuzzle();
+        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+    }, 1000);
 
-    playPuzzle();
-
-    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
     //$('#tablecontainer_random').show(200);
     nxtmv_button.prop('disabled', false);
     //step = step + 5000;
 
+});
+
+$('#stopplay').on('click', function () {
+    window.clearInterval(intervalId);
 });
 
 function loaderShow() {

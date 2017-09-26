@@ -6181,6 +6181,7 @@ let sq_matrix_max = n * n;
 let matrix = [];
 let matrix_rnd = [];
 let x = 1;
+var intervalId;
 let step = 5000;
 let tries = 0;
 let zero_pos = [];
@@ -6211,15 +6212,21 @@ $('#calculate').on('click', function () {
     insertHTML("zero_result", "El lugar vacío es: (" + zero_pos[0] + "," + zero_pos[1] + ")");
     $('#zero_result').show(200);
     $('#nextmove').show(200);
+    $('#stopplay').show(200);
     getPositionMatrix();
     goToBottom();
 });
 $('#nextmove').on('click', function () {
     let nxtmv_button = $('#nextmove');
     nxtmv_button.prop('disabled', true);
-    playPuzzle();
-    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+    intervalId = window.setInterval(function () {
+        playPuzzle();
+        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
+    }, 1000);
     nxtmv_button.prop('disabled', false);
+});
+$('#stopplay').on('click', function () {
+    window.clearInterval(intervalId);
 });
 function loaderShow() {
     $('.loader').show();
