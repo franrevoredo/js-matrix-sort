@@ -1,23 +1,22 @@
 
 
-let n:number = 3;
+let n:number = 4;
 let m:number = n;
 let sq_matrix_max = n * n;
+let max_iterations:number = sq_matrix_max * 500000;
 let matrix:Array<Array<number>> = [];
 let matrix_rnd:Array<Array<number>> = [];
 let x = 1;
 
-var intervalId:number;
+let intervalId:number;
 
-let step:number = 5000;
+//let step:number = 5000;
 
 let tries:number = 0;
 
 let zero_pos:Array<number> = [];
 
 let next_move:Array<number> = [];
-
-let previous_move:Array<number> = [];
 
 for (let i = 0; i < n; i++) {
     if (!matrix[i])
@@ -33,7 +32,7 @@ for (let i = 0; i < n; i++) {
     }
 }
 
-insertHTML("tablecontainer", createTable(matrix, "La Matriz Original"));
+insertHTML("tablecontainer", createTable(matrix, "La Matriz Original", "original"));
 
 
 
@@ -50,7 +49,7 @@ $('#random').on('click', function () {
     matrix_rnd = fillMatrix(n, rand);
 
     //Crear el html de la tabla e insertarla en el div
-    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
+    insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada", "mezclada"));
 
     $('#calculate').show(200);
     goToBottom();
@@ -64,7 +63,7 @@ $('#calculate').on('click', function () {
     $('#zero_result').show(200);
     $('#nextmove').show(200);
     $('#stopplay').show(200);
-    getPositionMatrix();
+    //getPositionMatrix();
     goToBottom();
 });
 
@@ -72,46 +71,76 @@ $('#calculate').on('click', function () {
 $('#nextmove').on('click', function () {
     let nxtmv_button = $('#nextmove');
     nxtmv_button.prop('disabled', true);
-    intervalId = window.setInterval(function(){
-        playPuzzle();
-        insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado"));
-    }, 1000);
+    $('.loader').show(200, function () {
+        let t0 = performance.now();
+        while (checkVictory() === false && tries <= max_iterations) {
+            playPuzzle();
+        }
+        let t1 = performance.now();
 
-    //$('#tablecontainer_random').show(200);
-    nxtmv_button.prop('disabled', false);
-    //step = step + 5000;
+        $('.loader').hide(1000, function () {
 
+            insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Resultado", "mezclada"));
+
+            if(tries >= max_iterations) {
+                alert("SE LLEGO AL NUMERO MÁXIMO DE ITERACIONES(" + max_iterations + ") Y NO SE PUDO RESOLVER EL PUZZLE");
+            } else {
+                alert("RESUELTO EL PUZZLE, EN " + (t1 - t0) / 1000 + " SEGUNDOS y " + tries + " INTENTOS!");
+            }
+            tries = 0;
+            nxtmv_button.prop('disabled', false);
+        });
+    });
 });
 
 $('#stopplay').on('click', function () {
     window.clearInterval(intervalId);
 });
 
+function checkVictory() {
+    for(let i = 0; i < n; i++) {
+        for(let j = 0; j < m; j++) {
+            if(matrix_rnd[i][j] !== matrix[i][j])
+                return false;
+        }
+    }
+    return true;
+}
+
 function loaderShow() {
     $('.loader').show();
 }
 
 function loaderHide() {
-    $('.loader').hide();
+    $('.loader').hide(700);
+}
+
+function matrixShow() {
+    return $('.original').show();
+}
+
+function matrixHide() {
+    $('.original').hide();
 }
 
 function goToBottom() {
     $("html, body").animate({ scrollTop: $(document).height() }, "slow");
 }
 
-
 function playPuzzle() {
+
+    if(tries > 0 && tries % 25000 === 0)
+        console.log(tries);
 
     if (!next_move) {
         next_move = getRandomPlay();
-        console.log("Next Move: " + next_move[0] + "," + next_move[1]);
+        //console.log("Next Move: " + next_move[0] + "," + next_move[1]);
     }
 
     if (isPossible(next_move, zero_pos)) {
         matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
         tries++;
-        console.log(tries);
-        //insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada"));
+        //console.log(tries);
         next_move = null;
 
     } else {
@@ -127,23 +156,44 @@ function makeThePlay(initial_pos:Array<number>, final_pos:Array<number>, matrix:
 
     matrix[initial_pos[0]][initial_pos[1]] = final_val;
     matrix[final_pos[0]][final_pos[1]] = initial_val;
-    console.log("ZERO: " + zero_pos[0] + "," + zero_pos[1]);
+    //console.log("ZERO: " + zero_pos[0] + "," + zero_pos[1]);
     zero_pos = final_pos;
-    console.log("FINAL: " + final_pos[0] + "," + final_pos[1]);
+    //console.log("FINAL: " + final_pos[0] + "," + final_pos[1]);
 
     return matrix;
 }
 
+/*
+Para saber si una jugada es posible hay que verificar
+primero que la distancia al bloque sea 1, es decir que sea contigua.
+Luego se debe chequear que que el movimiento se encuentre en la misma fila
+o columna de la posicion actual.
+Por ultimo se chequea que el proximo movimiento no sea igual al anterior, para
+no desperdiciar jugadas.
+ */
 function isPossible(move:Array<number>, base_point:Array<number>) {
+    //console.log("Next Move: " + move[0] + "," + move[1]);
+    //console.log("");
+
     let move_sum = move[0] + move[1];
     let point_sum = base_point[0] + base_point [1];
     if(getDistance(move_sum, point_sum) === 1) {
+        //console.log("Distancia OK");
         if(isCongruentColumnOrRow(move, base_point)) {
-            return true;
+            //console.log("Misma Fila/Columna OK");
+                return true;
+        } else {
+            //console.log("Misma Fila/Columna FAIL");
         }
+    } else {
+       //console.log("Distancia FAIL");
     }
+    //console.log("--");
+    //console.log("");
+    //console.log("");
     return false;
 }
+
 
 function isCongruentColumnOrRow(move:Array<number>, base_point:Array<number>) {
     return (move[0] === base_point[0] || move[1] === base_point[1]);
@@ -154,12 +204,6 @@ function getRandomPlay() {
     randomPlay[0] = getRandom(n);
     randomPlay[1] = getRandom(n);
     return randomPlay;
-}
-
-//Calcular los movimientos válidos desde la posicion indicada en la matriz
-function possibleMoves(zero:Array<number>, aux_matrix:Array<Array<number>>) {
-    let pos_sum = zero[0] + zero[1];
-    let positionMatrix = getPositionMatrix();
 }
 
 //Calcular el array de posiciones para la matriz, es decir
@@ -239,10 +283,10 @@ function getRandom(max:number) {
     return Math.floor((Math.random() * max));
 }
 
-function createTable(data:Array<Array<number>>, title:string) {
+function createTable(data:Array<Array<number>>, title:string, id:string) {
     let html = '';
 
-    html += '<h2>' + title + '</h2><table class="table matrix">';
+    html += '<h2>' + title + '</h2><table class="table matrix" id="'+ id +'">';
 
 
     for (let row in data) {
@@ -275,15 +319,4 @@ function insertHTML(id:string, html:string) {
 
 function getDistance(x:number, y:number) {
     return Math.abs(x - y);
-}
-
-function arraysEqual(arr1:Array<any>, arr2:Array<any>) {
-    if(arr1.length !== arr2.length)
-        return false;
-    for(let i = arr1.length; i--;) {
-        if(arr1[i] !== arr2[i])
-            return false;
-    }
-
-    return true;
 }

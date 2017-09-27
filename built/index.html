@@ -33,9 +33,6 @@
 	</div>
 
 	<div class="loader">
-        <div class="loader-content">
-            <img src="../assets/images/Spinner.gif">
-        </div>
     </div>
 
 	<script type="application/javascript" src="main.js"></script>
@@ -94,7 +91,7 @@
 		}
 
         .loader {
-            display: none; /* Hidden by default */
+            display: none;  /* Hidden by default */
             position: fixed; /* Stay in place */
             z-index: 1; /* Sit on top */
             left: 0;
@@ -105,30 +102,10 @@
             background-color: rgb(0,0,0); /* Fallback color */
             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
         }
-        @media (max-width: 326px) {
-            .loader-content {
-                margin-left: 18%;
-                margin-top: 18%;
-            }
-        }
-        @media (max-width: 501px) and (min-width: 327px){
-            .loader-content {
-                margin-left: 28%;
-                margin-top: 18%;
-            }
-        }
-        @media (max-width: 985px) and (min-width: 502px){
-            .loader-content {
-                margin-left: 36%;
-                margin-top: 15%;
-            }
-        }
-        @media (max-width: 1200px) and (min-width: 986px) {
-            .loader-content {
-                margin-left: 40%;
-                margin-top: 15%;
-            }
-        }
+
+		.marcada {
+			background-color: coral;
+		}
 	</style>
 
 </body>
