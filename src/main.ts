@@ -1,16 +1,14 @@
 
 
-let n:number = 4;
+let n:number = 3;
 let m:number = n;
 let sq_matrix_max = n * n;
-let max_iterations:number = sq_matrix_max * 500000;
+let max_iterations:number = sq_matrix_max * 800000;
 let matrix:Array<Array<number>> = [];
 let matrix_rnd:Array<Array<number>> = [];
 let x = 1;
 
 let intervalId:number;
-
-//let step:number = 5000;
 
 let tries:number = 0;
 
@@ -52,6 +50,7 @@ $('#random').on('click', function () {
     insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada", "mezclada"));
 
     $('#calculate').show(200);
+    $('#tablecontainer').hide(200);
     goToBottom();
 });
 
@@ -107,22 +106,6 @@ function checkVictory() {
     return true;
 }
 
-function loaderShow() {
-    $('.loader').show();
-}
-
-function loaderHide() {
-    $('.loader').hide(700);
-}
-
-function matrixShow() {
-    return $('.original').show();
-}
-
-function matrixHide() {
-    $('.original').hide();
-}
-
 function goToBottom() {
     $("html, body").animate({ scrollTop: $(document).height() }, "slow");
 }
@@ -141,13 +124,8 @@ function playPuzzle() {
         matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
         tries++;
         //console.log(tries);
-        next_move = null;
-
-    } else {
-
-        next_move = null;
     }
-
+    next_move = null;
 }
 
 function makeThePlay(initial_pos:Array<number>, final_pos:Array<number>, matrix:Array<Array<number>>) {

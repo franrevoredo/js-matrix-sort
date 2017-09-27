@@ -6175,10 +6175,10 @@
     }
     return jQuery;
 });
-let n = 4;
+let n = 3;
 let m = n;
 let sq_matrix_max = n * n;
-let max_iterations = sq_matrix_max * 500000;
+let max_iterations = sq_matrix_max * 800000;
 let matrix = [];
 let matrix_rnd = [];
 let x = 1;
@@ -6205,6 +6205,7 @@ $('#random').on('click', function () {
     matrix_rnd = fillMatrix(n, rand);
     insertHTML("tablecontainer_random", createTable(matrix_rnd, "La Matriz Mezclada", "mezclada"));
     $('#calculate').show(200);
+    $('#tablecontainer').hide(200);
     goToBottom();
 });
 $('#calculate').on('click', function () {
@@ -6249,18 +6250,6 @@ function checkVictory() {
     }
     return true;
 }
-function loaderShow() {
-    $('.loader').show();
-}
-function loaderHide() {
-    $('.loader').hide(700);
-}
-function matrixShow() {
-    return $('.original').show();
-}
-function matrixHide() {
-    $('.original').hide();
-}
 function goToBottom() {
     $("html, body").animate({ scrollTop: $(document).height() }, "slow");
 }
@@ -6273,11 +6262,8 @@ function playPuzzle() {
     if (isPossible(next_move, zero_pos)) {
         matrix_rnd = makeThePlay(zero_pos, next_move, matrix_rnd);
         tries++;
-        next_move = null;
     }
-    else {
-        next_move = null;
-    }
+    next_move = null;
 }
 function makeThePlay(initial_pos, final_pos, matrix) {
     let initial_val = matrix[initial_pos[0]][initial_pos[1]];
